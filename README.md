@@ -63,7 +63,6 @@ You can also download the JAR file directly from the releases section and includ
 
 ```java
 import com.alphafeed.io.AlphaFeedSDK;
-import com.alphafeed.io.AlphafeedSDK;
 
 // Initialize with your API key
 AlphaFeedSDK sdk = new AlphaFeedSDK("your-api-key");
