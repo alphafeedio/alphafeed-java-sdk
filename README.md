@@ -25,14 +25,12 @@ To use this SDK in your Maven project, you can use JitPack as a repository. Add 
 
 <dependencies>
     <dependency>
-        <groupId>com.github.YOUR-USERNAME</groupId>
+        <groupId>com.github.alphafeedio</groupId>
         <artifactId>alphafeed-java-sdk</artifactId>
         <version>main-SNAPSHOT</version> <!-- or use a specific tag/release -->
     </dependency>
 </dependencies>
 ```
-
-Replace `YOUR-USERNAME` with your GitHub username.
 
 ### Gradle
 
@@ -44,7 +42,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.YOUR-USERNAME:alphafeed-java-sdk:main-SNAPSHOT'
+    implementation 'com.github.alphafeedio:alphafeed-java-sdk:main-SNAPSHOT'
 }
 ```
 
@@ -172,4 +170,3 @@ sdk.
 ## Error Handling
 
 The SDK throws standard `IOException` for REST API errors. For WebSocket connections, errors are delivered through the `onError` callback of the `NewsSignalListener` interface.
-
