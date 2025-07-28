@@ -1,6 +1,5 @@
 package com.alphafeed.io;
 
-import com.alphafeed.io.model.NewsSignal;
 import com.alphafeed.io.model.SignalsHistoricalDataResponse;
 import com.alphafeed.io.util.ISO8601DateAdapter;
 import com.google.gson.FieldNamingPolicy;
@@ -15,18 +14,18 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class AlphafeedSDK {
+public class AlphaFeedSDK {
     private final String apiKey;
     private final String baseUrl;
     private final OkHttpClient httpClient;
     private final Gson gson;
     private AlphafeedWebSocketClient webSocketClient;
 
-    public AlphafeedSDK(String apiKey) {
+    public AlphaFeedSDK(String apiKey) {
         this(apiKey, "https://api.alphafeed.io");
     }
 
-    public AlphafeedSDK(String apiKey, String baseUrl) {
+    public AlphaFeedSDK(String apiKey, String baseUrl) {
         this.apiKey = apiKey;
         this.baseUrl = baseUrl;
         this.httpClient = new OkHttpClient.Builder()
