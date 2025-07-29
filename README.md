@@ -11,39 +11,100 @@ A Java SDK for interacting with the AlphaFeed.io API. This library provides easy
 
 ## Installation
 
-### Maven
+### Using GitHub Packages
 
-To use this SDK in your Maven project, you can use JitPack as a repository. Add the following to your `pom.xml`:
+This package is available from GitHub Packages. To use it in your project, you need to:
+
+#### 1. Configure Authentication
+
+Add your GitHub credentials to your Maven `settings.xml` file (usually in `~/.m2/settings.xml`):
+
+```xml
+<settings>
+  <servers>
+    <server>
+      <id>github</id>
+      <username>YOUR_GITHUB_USERNAME</username>
+      <password>YOUR_GITHUB_TOKEN</password>
+    </server>
+  </servers>
+</settings>
+```
+
+For the password, use a GitHub personal access token with `read:packages` scope.
+
+#### 2. Add the Repository and Dependency
+
+##### Maven
+
+Add to your `pom.xml`:
 
 ```xml
 <repositories>
     <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/alphafeedio/alphafeed-java-sdk</url>
     </repository>
 </repositories>
 
 <dependencies>
     <dependency>
-        <groupId>com.github.alphafeedio</groupId>
+        <groupId>com.alphafeed.io</groupId>
         <artifactId>alphafeed-java-sdk</artifactId>
-        <version>main-SNAPSHOT</version> <!-- or use a specific tag/release -->
+        <version>1.0</version> <!-- Use appropriate version -->
     </dependency>
 </dependencies>
 ```
 
-### Gradle
+##### Gradle
 
-If you're using Gradle, add this to your build file:
+Add to your `build.gradle`:
 
 ```groovy
 repositories {
-    maven { url 'https://jitpack.io' }
+    maven {
+        url = uri("https://maven.pkg.github.com/alphafeedio/alphafeed-java-sdk")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
+            password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 dependencies {
-    implementation 'com.github.alphafeedio:alphafeed-java-sdk:main-SNAPSHOT'
+    implementation 'com.alphafeed.io:alphafeed-java-sdk:1.0'
 }
+```
+
+Set the environment variables or gradle properties for authentication:
+
+```groovy
+// In gradle.properties:
+gpr.user=YOUR_GITHUB_USERNAME
+gpr.key=YOUR_GITHUB_TOKEN
+```
+
+Or set environment variables `GITHUB_USERNAME` and `GITHUB_TOKEN`.
+
+#### 3. Building with GitHub Actions
+
+If using GitHub Actions, add this to your workflow:
+
+```yaml
+jobs:
+  build:
+    # ...
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Manual Installation
@@ -66,7 +127,6 @@ import com.alphafeed.io.AlphaFeedSDK;
 
 // Initialize with your API key
 AlphaFeedSDK sdk = new AlphaFeedSDK("your-api-key");
-
 ```
 
 ### Getting Historical Data
