@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.alphafeed</groupId>
+  <groupId>com.alphafeed.io</groupId>
   <artifactId>alphafeed-java-sdk</artifactId>
-  <version>1.0</version>
+  <version>1.0.3</version>
   <name>Alphafeed Java SDK</name>
   <url>http://maven.apache.org</url>
   
@@ -36,4 +36,11 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>https://maven.pkg.github.com/alphafeedio/alphafeed-java-sdk</url>
+    </repository>
+  </distributionManagement>
 </project>
