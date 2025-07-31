@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 public class NewsSignal {
-    private String id;
+    private Integer id;
 
     @SerializedName("signal_score")
     private int signalScore;
@@ -29,6 +29,9 @@ public class NewsSignal {
     @SerializedName("instrument_tickers")
     private List<String> instrumentTickers;
 
+    @SerializedName("instrument_id")
+    private Integer instrumentId;
+
     @SerializedName("news_title")
     private String newsTitle;
 
@@ -41,7 +44,7 @@ public class NewsSignal {
     @SerializedName("news_url")
     private String newsUrl;
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -73,6 +76,10 @@ public class NewsSignal {
         return instrumentTickers;
     }
 
+    public Integer getInstrumentId() {
+        return instrumentId;
+    }
+
     public String getNewsTitle() {
         return newsTitle;
     }
@@ -92,7 +99,7 @@ public class NewsSignal {
     @Override
     public String toString() {
         return "NewsSignal{" +
-                "id='" + id + '\'' +
+                "id=" + id +
                 ", signalScore=" + signalScore +
                 ", signalSide='" + signalSide + '\'' +
                 ", signalImportanceScore=" + signalImportanceScore +
@@ -100,6 +107,7 @@ public class NewsSignal {
                 ", signalDatetime=" + signalDatetime +
                 ", instrumentName='" + instrumentName + '\'' +
                 ", instrumentTickers=" + instrumentTickers +
+                ", instrumentId=" + instrumentId +
                 ", newsTitle='" + newsTitle + '\'' +
                 ", newsDatetime=" + newsDatetime +
                 ", newsSite='" + newsSite + '\'' +

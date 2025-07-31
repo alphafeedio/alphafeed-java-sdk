@@ -2,9 +2,9 @@ package com.alphafeed.io;
 
 import com.alphafeed.io.model.NewsSignal;
 import com.alphafeed.io.model.RealtimeMessage;
+import com.alphafeed.io.util.GsonFactory;
+import com.alphafeed.io.util.HttpUtils;
 import com.google.gson.Gson;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.GsonBuilder;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.alphafeed.io.util.ISO8601DateAdapter;
 
@@ -27,24 +28,30 @@ public class AlphafeedWebSocketClient extends WebSocketListener {
     private WebSocket webSocket;
     private boolean isConnected = false;
     private final ScheduledExecutorService pingScheduler = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService reconnectScheduler = Executors.newSingleThreadScheduledExecutor();
+    
+    private final int maxReconnectAttempts;
+    private final int reconnectIntervalSeconds;
+    private final AtomicInteger reconnectAttempts = new AtomicInteger(0);
+    private boolean intentionalDisconnect = false;
 
     public AlphafeedWebSocketClient(String url, NewsSignalListener listener) {
-        this.client = new OkHttpClient.Builder()
-                .readTimeout(0, TimeUnit.MILLISECONDS) // Disable timeouts for WebSockets
-                .build();
+        this(url, listener, 3, 5);
+    }
+
+    public AlphafeedWebSocketClient(String url, NewsSignalListener listener, int maxReconnectAttempts, int reconnectIntervalSeconds) {
+        this.client = HttpUtils.createWebSocketHttpClient();
         this.url = url;
         this.listener = listener;
-        this.gson = new GsonBuilder()
-                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                .registerTypeAdapter(Date.class, new ISO8601DateAdapter())
-                .create();
+        this.gson = GsonFactory.getGson();
+        this.maxReconnectAttempts = maxReconnectAttempts;
+        this.reconnectIntervalSeconds = reconnectIntervalSeconds;
     }
 
     public void connect() {
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        webSocket = client.newWebSocket(request, this);
+        intentionalDisconnect = false;
+        reconnectAttempts.set(0);
+        connectWebSocket();
         
         // Schedule ping messages every 30 seconds
         pingScheduler.scheduleAtFixedRate(() -> {
@@ -56,16 +63,43 @@ public class AlphafeedWebSocketClient extends WebSocketListener {
         }, 30, 30, TimeUnit.SECONDS);
     }
 
+    private void connectWebSocket() {
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        webSocket = client.newWebSocket(request, this);
+    }
+
     public void disconnect() {
+        intentionalDisconnect = true;
         if (webSocket != null) {
             webSocket.close(1000, "Closed by client");
         }
         pingScheduler.shutdown();
+        reconnectScheduler.shutdown();
+    }
+
+    private void attemptReconnect() {
+        if (intentionalDisconnect) {
+            return;
+        }
+
+        int attempts = reconnectAttempts.incrementAndGet();
+        if (attempts <= maxReconnectAttempts) {
+            listener.onConnectionStateChange(false, "Connection lost. Reconnect attempt " + attempts + 
+                                           " of " + maxReconnectAttempts + " in " + reconnectIntervalSeconds + " seconds");
+
+            
+            reconnectScheduler.schedule(this::connectWebSocket, reconnectIntervalSeconds, TimeUnit.SECONDS);
+        } else {
+            listener.onConnectionStateChange(false, "Failed to reconnect after " + maxReconnectAttempts + " attempts");
+        }
     }
 
     @Override
     public void onOpen(WebSocket webSocket, Response response) {
         isConnected = true;
+        reconnectAttempts.set(0);
         listener.onConnectionStateChange(true);
     }
 
@@ -86,6 +120,10 @@ public class AlphafeedWebSocketClient extends WebSocketListener {
     public void onClosed(WebSocket webSocket, int code, String reason) {
         isConnected = false;
         listener.onConnectionStateChange(false);
+        
+        if (!intentionalDisconnect) {
+            attemptReconnect();
+        }
     }
 
     @Override
@@ -93,5 +131,9 @@ public class AlphafeedWebSocketClient extends WebSocketListener {
         isConnected = false;
         listener.onError(t);
         listener.onConnectionStateChange(false);
+        
+        if (!intentionalDisconnect) {
+            attemptReconnect();
+        }
     }
 }

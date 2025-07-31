@@ -6,8 +6,10 @@ A Java SDK for interacting with the AlphaFeed.io API. This library provides easy
 
 - Historical data access with flexible filtering options
 - Real-time data subscription via WebSocket
+- Instruments discovery and search functionality
 - Automatic parsing of JSON responses into Java objects
 - Date field conversion from ISO 8601 format to Java Date objects
+- Support for multiple instrument filtering (by names and IDs)
 
 ## Installation
 
@@ -51,7 +53,7 @@ Add to your `pom.xml`:
     <dependency>
         <groupId>com.alphafeed.io</groupId>
         <artifactId>alphafeed-java-sdk</artifactId>
-        <version>1.0.3</version> <!-- Use appropriate version -->
+        <version>1.0.4</version> <!-- Use appropriate version -->
     </dependency>
 </dependencies>
 ```
@@ -135,53 +137,100 @@ AlphaFeedSDK sdk = new AlphaFeedSDK("your-api-key");
 import com.alphafeed.io.AlphaFeedSDK;
 import com.alphafeed.io.model.SignalsHistoricalDataResponse;
 import com.alphafeed.io.model.NewsSignal;
+import java.util.Arrays;
 
 // Initialize the SDK
 AlphaFeedSDK sdk = new AlphaFeedSDK("your-api-key");
 
-try{
-        // Query historical data
-        SignalsHistoricalDataResponse response = sdk.getHistoricalData(
-                "2025-07-01",          // dateFrom (required)
-                "2025-07-28",          // dateTo (required)
-                "NVDA",                // instrument (optional)
-                20,                    // limit (optional)
-                0,                     // offset (optional)
-                50,                    // minScore (optional)
-                0.5f,                  // minImportance (optional)
-                0.5f                   // minSentiment (optional)
-        );
+try {
+    // Query historical data with instrument names
+    SignalsHistoricalDataResponse response = sdk.getHistoricalData(
+            "2025-07-01",                           // dateFrom (required)
+            "2025-07-28",                           // dateTo (required)
+            Arrays.asList("NVDA", "AAPL", "MSFT"),  // instrumentNames (optional)
+            null,                                   // instrumentIds (optional)
+            20,                                     // limit (optional)
+            0,                                      // offset (optional)
+            50,                                     // minScore (optional)
+            0.5f,                                   // minImportance (optional)
+            0.5f                                    // minSentiment (optional)
+    );
 
-        // Process the data
-    System.out.
+    // Alternative: Query by instrument IDs
+    SignalsHistoricalDataResponse response2 = sdk.getHistoricalData(
+            "2025-07-01",                           // dateFrom (required)
+            "2025-07-28",                           // dateTo (required)
+            null,                                   // instrumentNames (optional)
+            Arrays.asList(1, 2, 3),                 // instrumentIds (optional)
+            20,                                     // limit (optional)
+            0,                                      // offset (optional)
+            50,                                     // minScore (optional)
+            0.5f,                                   // minImportance (optional)
+            0.5f                                    // minSentiment (optional)
+    );
 
-        println("Total records: "+response.getPagination().
+    // Process the data
+    System.out.println("Total records: " + response.getPagination().getTotal());
 
-        getTotal());
-
-        for(
-        NewsSignal signal :response.
-
-        getData()){
-        System.out.
-
-        println("News: "+signal.getNewsTitle());
-        System.out.
-
-        println("Date: "+signal.getNewsDatetime());
-        System.out.
-
-        println("Score: "+signal.getSignalScore());
-        System.out.
-
-        println("-----------------------");
+    for (NewsSignal signal : response.getData()) {
+        System.out.println("News: " + signal.getNewsTitle());
+        System.out.println("Date: " + signal.getNewsDatetime());
+        System.out.println("Score: " + signal.getSignalScore());
+        System.out.println("Instrument: " + signal.getInstrumentName());
+        System.out.println("Instrument ID: " + signal.getInstrumentId());
+        System.out.println("-----------------------");
     }
-            }catch(
-        IOException e){
-        System.err.
+} catch (IOException e) {
+    System.err.println("Error: " + e.getMessage());
+}
+```
 
-        println("Error: "+e.getMessage());
-        }
+### Getting Available Instruments
+
+```java
+import com.alphafeed.io.AlphaFeedSDK;
+import com.alphafeed.io.model.InstrumentsResponse;
+import com.alphafeed.io.model.Instrument;
+import java.util.Arrays;
+
+// Initialize the SDK
+AlphaFeedSDK sdk = new AlphaFeedSDK("your-api-key");
+
+try {
+    // Get all available instruments
+    InstrumentsResponse allInstruments = sdk.getInstruments();
+    
+    // Filter by instrument types
+    InstrumentsResponse stocksAndCrypto = sdk.getInstruments(
+        Arrays.asList("NASDAQ"), // instrumentTypes (optional)
+        null                              // keywords (optional)
+    );
+    
+    // Search by keywords
+    InstrumentsResponse appleInstruments = sdk.getInstruments(
+        null,     // instrumentTypes (optional)
+        "Apple"   // keywords (optional)
+    );
+    
+    // Combined filtering
+    InstrumentsResponse filtered = sdk.getInstruments(
+        Arrays.asList("NASDAQ"),  // instrumentTypes (optional)
+        "tech"                   // keywords (optional)
+    );
+
+    // Process the results
+    System.out.println("Total instruments found: " + filtered.getTotal());
+    
+    for (Instrument instrument : filtered.getData()) {
+        System.out.println("ID: " + instrument.getId());
+        System.out.println("Name: " + instrument.getName());
+        System.out.println("Tickers: " + instrument.getTickers());
+        System.out.println("Type: " + instrument.getInstrumentType());
+        System.out.println("-----------------------");
+    }
+} catch (IOException e) {
+    System.err.println("Error: " + e.getMessage());
+}
 ```
 
 ### Subscribing to Real-time Data
@@ -189,41 +238,51 @@ try{
 ```java
 import com.alphafeed.io.AlphaFeedSDK;
 import com.alphafeed.io.NewsSignalListener;
+import java.util.Arrays;
 
 // Initialize the SDK
 AlphaFeedSDK sdk = new AlphaFeedSDK("your-api-key");
 
-// Subscribe to real-time signals
-sdk.
+// Subscribe to real-time signals with instrument names
+sdk.subscribeToRealtime(new NewsSignalListener() {
+    @Override
+    public void onSignal(NewsSignal signal) {
+        System.out.println("New signal received: " + signal.getNewsTitle());
+        System.out.println("Instrument: " + signal.getInstrumentName());
+        System.out.println("Instrument ID: " + signal.getInstrumentId());
+        System.out.println("Score: " + signal.getSignalScore());
+    }
 
-        subscribeToRealtime(new NewsSignalListener() {
-           @Override
-           public void onSignal (NewsSignal signal){
-              System.out.println("New signal received: " + signal.getNewsTitle());
-              System.out.println("Instrument: " + signal.getInstrumentName());
-              System.out.println("Score: " + signal.getSignalScore());
-           }
+    @Override
+    public void onError(Throwable t) {
+        System.err.println("Error: " + t.getMessage());
+    }
 
-           @Override
-           public void onError (Throwable t){
-              System.err.println("Error: " + t.getMessage());
-           }
+    @Override
+    public void onConnectionStateChange(boolean connected) {
+        System.out.println("Connection state: " + (connected ? "Connected" : "Disconnected"));
+    }
+},
+    Arrays.asList("NVDA", "AAPL"),  // instrumentNames (optional) - filter by instrument names
+    null,                           // instrumentIds (optional) - filter by instrument IDs
+    50,                             // minScore (optional) - minimum signal score
+    0.5f,                           // minImportance (optional) - minimum importance score
+    0.5f                            // minSentiment (optional) - minimum sentiment score
+);
 
-           @Override
-           public void onConnectionStateChange ( boolean connected){
-              System.out.println("Connection state: " + (connected ? "Connected" : "Disconnected"));
-           }
-        },
-        "NVDA",    // instrument (optional) - filter by specific instrument
-        50,          // minScore (optional) - minimum signal score
-        0.5f,        // minImportance (optional) - minimum importance score
-        0.5f         // minSentiment (optional) - minimum sentiment score
-        );
+// Alternative: Subscribe using instrument IDs
+sdk.subscribeToRealtime(new NewsSignalListener() {
+    // listener implementation
+},
+    null,                           // instrumentNames (optional)
+    Arrays.asList(1, 2, 3),         // instrumentIds (optional)
+    50,                             // minScore (optional)
+    0.5f,                           // minImportance (optional)
+    0.5f                            // minSentiment (optional)
+);
 
 // Later, when you want to unsubscribe:
-        sdk.
-
-        unsubscribeFromRealtime();
+sdk.unsubscribeFromRealtime();
 ```
 
 ## Error Handling

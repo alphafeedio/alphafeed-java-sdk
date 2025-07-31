@@ -6,4 +6,8 @@ public interface NewsSignalListener {
     void onSignal(NewsSignal signal);
     void onError(Throwable t);
     void onConnectionStateChange(boolean connected);
+    
+    default void onConnectionStateChange(boolean connected, String message) {
+        onConnectionStateChange(connected);
+    }
 }
