@@ -11,6 +11,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 public class AlphaFeedSDK {
@@ -31,12 +32,15 @@ public class AlphaFeedSDK {
         this.gson = GsonFactory.getGson();
     }
 
-    public SignalsHistoricalDataResponse getHistoricalData(String dateFrom, String dateTo, List<String> instrumentNames,
+    public SignalsHistoricalDataResponse getHistoricalData(Date dateFrom, Date dateTo, List<String> instrumentNames,
                                                            List<Integer> instrumentIds, Integer limit, Integer offset, Integer minScore,
                                                            Float minImportance, Float minSentiment) throws IOException {
+        String dateFromIso = dateFrom.toInstant().toString();
+        String dateToIso = dateTo.toInstant().toString();
+
         HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + "/historical-data").newBuilder()
-                .addQueryParameter("date_from", dateFrom)
-                .addQueryParameter("date_to", dateTo);
+                .addQueryParameter("date_from", dateFromIso)
+                .addQueryParameter("date_to", dateToIso);
 
         HttpUtils.addInstrumentParameters(urlBuilder, instrumentNames, instrumentIds);
         HttpUtils.addPaginationParameters(urlBuilder, limit, offset);
@@ -77,7 +81,7 @@ public class AlphaFeedSDK {
     }
 
     public void subscribeToRealtime(NewsSignalListener listener, List<String> instrumentNames, List<Integer> instrumentIds,
-                                    Integer minScore, Float minImportance, Float minSentiment, 
+                                    Integer minScore, Float minImportance, Float minSentiment,
                                     int maxReconnectAttempts, int reconnectIntervalSeconds) {
         if (webSocketClient != null) {
             webSocketClient.disconnect();
@@ -101,7 +105,7 @@ public class AlphaFeedSDK {
             webSocketClient = null;
         }
     }
-    
+
     private <T> T executeRequest(Request request, Class<T> responseType) throws IOException {
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
