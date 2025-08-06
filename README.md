@@ -53,7 +53,7 @@ Add to your `pom.xml`:
     <dependency>
         <groupId>com.alphafeed.io</groupId>
         <artifactId>alphafeed-java-sdk</artifactId>
-        <version>1.0.4</version> <!-- Use appropriate version -->
+        <version>1.0.6</version> <!-- Use appropriate version -->
     </dependency>
 </dependencies>
 ```
