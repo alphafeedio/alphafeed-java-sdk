@@ -9,8 +9,8 @@ public class Instrument {
     private String name;
     private List<String> tickers;
     
-    @SerializedName("instrument_type")
-    private String instrumentType;
+    @SerializedName("instrument_categories")
+    private List<String> instrumentCategories;
 
     public Integer getId() {
         return id;
@@ -24,8 +24,8 @@ public class Instrument {
         return tickers;
     }
 
-    public String getInstrumentType() {
-        return instrumentType;
+    public List<String> getInstrumentCategories() {
+        return instrumentCategories;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class Instrument {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", tickers=" + tickers +
-                ", instrumentType='" + instrumentType + '\'' +
+                ", instrumentCategories=" + instrumentCategories +
                 '}';
     }
 }

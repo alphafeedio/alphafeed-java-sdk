@@ -53,7 +53,7 @@ Add to your `pom.xml`:
     <dependency>
         <groupId>com.alphafeed.io</groupId>
         <artifactId>alphafeed-java-sdk</artifactId>
-        <version>1.0.6</version> <!-- Use appropriate version -->
+        <version>1.0.6.2</version> <!-- Use appropriate version -->
     </dependency>
 </dependencies>
 ```
@@ -200,21 +200,21 @@ try {
     // Get all available instruments
     InstrumentsResponse allInstruments = sdk.getInstruments();
     
-    // Filter by instrument types
+    // Filter by instrument categories
     InstrumentsResponse stocksAndCrypto = sdk.getInstruments(
-        Arrays.asList("NASDAQ"), // instrumentTypes (optional)
+        Arrays.asList("NASDAQ"), // instrumentCategories (optional)
         null                              // keywords (optional)
     );
     
     // Search by keywords
     InstrumentsResponse appleInstruments = sdk.getInstruments(
-        null,     // instrumentTypes (optional)
+        null,     // instrumentCategories (optional)
         "Apple"   // keywords (optional)
     );
     
     // Combined filtering
     InstrumentsResponse filtered = sdk.getInstruments(
-        Arrays.asList("NASDAQ"),  // instrumentTypes (optional)
+        Arrays.asList("NASDAQ"),  // instrumentCategories (optional)
         "tech"                   // keywords (optional)
     );
 
@@ -225,7 +225,7 @@ try {
         System.out.println("ID: " + instrument.getId());
         System.out.println("Name: " + instrument.getName());
         System.out.println("Tickers: " + instrument.getTickers());
-        System.out.println("Type: " + instrument.getInstrumentType());
+        System.out.println("Categories: " + instrument.getInstrumentCategories());
         System.out.println("-----------------------");
     }
 } catch (IOException e) {

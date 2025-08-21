@@ -57,11 +57,11 @@ public class AlphaFeedSDK {
         return getInstruments(null, null);
     }
 
-    public InstrumentsResponse getInstruments(List<String> instrumentTypes, String keywords) throws IOException {
+    public InstrumentsResponse getInstruments(List<String> instrumentCategories, String keywords) throws IOException {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + "/instruments").newBuilder();
 
-        if (instrumentTypes != null && !instrumentTypes.isEmpty()) {
-            urlBuilder.addQueryParameter("instrument_types", String.join(",", instrumentTypes));
+        if (instrumentCategories != null && !instrumentCategories.isEmpty()) {
+            urlBuilder.addQueryParameter("instrument_categories", String.join(",", instrumentCategories));
         }
 
         if (keywords != null && !keywords.trim().isEmpty()) {
