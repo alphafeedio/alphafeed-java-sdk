@@ -44,6 +44,9 @@ public class NewsSignal {
     @SerializedName("news_url")
     private String newsUrl;
 
+    @SerializedName("comment")
+    private String comment;
+
     public Integer getId() {
         return id;
     }
@@ -96,6 +99,10 @@ public class NewsSignal {
         return newsUrl;
     }
 
+    public String getComment() {
+        return comment;
+    }
+
     @Override
     public String toString() {
         return "NewsSignal{" +
@@ -112,6 +119,7 @@ public class NewsSignal {
                 ", newsDatetime=" + newsDatetime +
                 ", newsSite='" + newsSite + '\'' +
                 ", newsUrl='" + newsUrl + '\'' +
+                ", comment='" + comment + '\'' +
                 '}';
     }
 }
