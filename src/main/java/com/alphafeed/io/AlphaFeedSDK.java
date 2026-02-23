@@ -34,7 +34,7 @@ public class AlphaFeedSDK {
 
     public SignalsHistoricalDataResponse getHistoricalData(Date dateFrom, Date dateTo, List<String> instrumentNames,
                                                            List<Integer> instrumentIds, Integer limit, Integer offset, Integer minScore,
-                                                           Float minImportance, Float minSentiment) throws IOException {
+                                                           Float minStrength, List<String> reasonCodes) throws IOException {
         String dateFromIso = dateFrom.toInstant().toString();
         String dateToIso = dateTo.toInstant().toString();
 
@@ -44,7 +44,7 @@ public class AlphaFeedSDK {
 
         HttpUtils.addInstrumentParameters(urlBuilder, instrumentNames, instrumentIds);
         HttpUtils.addPaginationParameters(urlBuilder, limit, offset);
-        HttpUtils.addFilterParameters(urlBuilder, minScore, minImportance, minSentiment);
+        HttpUtils.addFilterParameters(urlBuilder, minScore, minStrength, reasonCodes);
 
         Request request = HttpUtils.createAuthenticatedRequestBuilder(urlBuilder.build().toString(), apiKey)
                 .get()
@@ -76,12 +76,12 @@ public class AlphaFeedSDK {
     }
 
     public void subscribeToRealtime(NewsSignalListener listener, List<String> instrumentNames, List<Integer> instrumentIds,
-                                    Integer minScore, Float minImportance, Float minSentiment) {
-        subscribeToRealtime(listener, instrumentNames, instrumentIds, minScore, minImportance, minSentiment, 3, 5);
+                                    Integer minScore, Float minStrength, List<String> reasonCodes) {
+        subscribeToRealtime(listener, instrumentNames, instrumentIds, minScore, minStrength, reasonCodes, 3, 5);
     }
 
     public void subscribeToRealtime(NewsSignalListener listener, List<String> instrumentNames, List<Integer> instrumentIds,
-                                    Integer minScore, Float minImportance, Float minSentiment,
+                                    Integer minScore, Float minStrength, List<String> reasonCodes,
                                     int maxReconnectAttempts, int reconnectIntervalSeconds) {
         if (webSocketClient != null) {
             webSocketClient.disconnect();
@@ -91,7 +91,7 @@ public class AlphaFeedSDK {
                 .addQueryParameter("api_key", apiKey);
 
         HttpUtils.addInstrumentParameters(urlBuilder, instrumentNames, instrumentIds);
-        HttpUtils.addFilterParameters(urlBuilder, minScore, minImportance, minSentiment);
+        HttpUtils.addFilterParameters(urlBuilder, minScore, minStrength, reasonCodes);
 
         String wsUrl = urlBuilder.build().toString().replace("http", "ws");
 

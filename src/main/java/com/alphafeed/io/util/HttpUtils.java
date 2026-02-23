@@ -47,20 +47,20 @@ public class HttpUtils {
         }
     }
     
-    public static void addFilterParameters(HttpUrl.Builder urlBuilder, 
-                                          Integer minScore, 
-                                          Float minImportance, 
-                                          Float minSentiment) {
+    public static void addFilterParameters(HttpUrl.Builder urlBuilder,
+                                          Integer minScore,
+                                          Float minStrength,
+                                          List<String> reasonCodes) {
         if (minScore != null) {
             urlBuilder.addQueryParameter("min_score", String.valueOf(minScore));
         }
 
-        if (minImportance != null) {
-            urlBuilder.addQueryParameter("min_importance", String.valueOf(minImportance));
+        if (minStrength != null) {
+            urlBuilder.addQueryParameter("min_strength", String.valueOf(minStrength));
         }
 
-        if (minSentiment != null) {
-            urlBuilder.addQueryParameter("min_sentiment", String.valueOf(minSentiment));
+        if (reasonCodes != null && !reasonCodes.isEmpty()) {
+            urlBuilder.addQueryParameter("reason_codes", String.join(",", reasonCodes));
         }
     }
     

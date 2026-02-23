@@ -14,11 +14,8 @@ public class NewsSignal {
     @SerializedName("signal_side")
     private String signalSide;
 
-    @SerializedName("signal_importance_score")
-    private float signalImportanceScore;
-
-    @SerializedName("signal_sentiments_score")
-    private float signalSentimentsScore;
+    @SerializedName("signal_strength_score")
+    private Float signalStrengthScore;
 
     @SerializedName("signal_datetime")
     private Date signalDatetime;
@@ -47,6 +44,9 @@ public class NewsSignal {
     @SerializedName("comment")
     private String comment;
 
+    @SerializedName("reason_code")
+    private String reasonCode;
+
     public Integer getId() {
         return id;
     }
@@ -59,12 +59,8 @@ public class NewsSignal {
         return signalSide;
     }
 
-    public float getSignalImportanceScore() {
-        return signalImportanceScore;
-    }
-
-    public float getSignalSentimentsScore() {
-        return signalSentimentsScore;
+    public Float getSignalStrengthScore() {
+        return signalStrengthScore;
     }
 
     public Date getSignalDatetime() {
@@ -103,14 +99,17 @@ public class NewsSignal {
         return comment;
     }
 
+    public String getReasonCode() {
+        return reasonCode;
+    }
+
     @Override
     public String toString() {
         return "NewsSignal{" +
                 "id=" + id +
                 ", signalScore=" + signalScore +
                 ", signalSide='" + signalSide + '\'' +
-                ", signalImportanceScore=" + signalImportanceScore +
-                ", signalSentimentsScore=" + signalSentimentsScore +
+                ", signalStrengthScore=" + signalStrengthScore +
                 ", signalDatetime=" + signalDatetime +
                 ", instrumentName='" + instrumentName + '\'' +
                 ", instrumentTickers=" + instrumentTickers +
@@ -120,6 +119,7 @@ public class NewsSignal {
                 ", newsSite='" + newsSite + '\'' +
                 ", newsUrl='" + newsUrl + '\'' +
                 ", comment='" + comment + '\'' +
+                ", reasonCode='" + reasonCode + '\'' +
                 '}';
     }
 }

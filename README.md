@@ -53,7 +53,7 @@ Add to your `pom.xml`:
     <dependency>
         <groupId>com.alphafeed.io</groupId>
         <artifactId>alphafeed-java-sdk</artifactId>
-        <version>1.0.6.3</version> <!-- Use appropriate version -->
+        <version>1.0.6.4</version> <!-- Use appropriate version -->
     </dependency>
 </dependencies>
 ```
@@ -74,7 +74,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.alphafeed.io:alphafeed-java-sdk:1.0'
+    implementation 'com.alphafeed.io:alphafeed-java-sdk:1.0.6.4'
 }
 ```
 
@@ -137,7 +137,10 @@ AlphaFeedSDK sdk = new AlphaFeedSDK("your-api-key");
 import com.alphafeed.io.AlphaFeedSDK;
 import com.alphafeed.io.model.SignalsHistoricalDataResponse;
 import com.alphafeed.io.model.NewsSignal;
+import java.io.IOException;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 
 // Initialize the SDK
 AlphaFeedSDK sdk = new AlphaFeedSDK("your-api-key");
@@ -145,28 +148,28 @@ AlphaFeedSDK sdk = new AlphaFeedSDK("your-api-key");
 try {
     // Query historical data with instrument names
     SignalsHistoricalDataResponse response = sdk.getHistoricalData(
-            "2025-07-01",                           // dateFrom (required)
-            "2025-07-28",                           // dateTo (required)
+            Date.from(Instant.parse("2025-07-01T00:00:00Z")),  // dateFrom (required)
+            Date.from(Instant.parse("2025-07-28T00:00:00Z")),  // dateTo (required)
             Arrays.asList("NVDA", "AAPL", "MSFT"),  // instrumentNames (optional)
             null,                                   // instrumentIds (optional)
             20,                                     // limit (optional)
             0,                                      // offset (optional)
             50,                                     // minScore (optional)
-            0.5f,                                   // minImportance (optional)
-            0.5f                                    // minSentiment (optional)
+            0.5f,                                   // minStrength (optional)
+            Arrays.asList("BUSINESS_UPDATE")        // reasonCodes (optional)
     );
 
     // Alternative: Query by instrument IDs
     SignalsHistoricalDataResponse response2 = sdk.getHistoricalData(
-            "2025-07-01",                           // dateFrom (required)
-            "2025-07-28",                           // dateTo (required)
+            Date.from(Instant.parse("2025-07-01T00:00:00Z")),  // dateFrom (required)
+            Date.from(Instant.parse("2025-07-28T00:00:00Z")),  // dateTo (required)
             null,                                   // instrumentNames (optional)
             Arrays.asList(1, 2, 3),                 // instrumentIds (optional)
             20,                                     // limit (optional)
             0,                                      // offset (optional)
             50,                                     // minScore (optional)
-            0.5f,                                   // minImportance (optional)
-            0.5f                                    // minSentiment (optional)
+            0.5f,                                   // minStrength (optional)
+            Arrays.asList("BUSINESS_UPDATE")        // reasonCodes (optional)
     );
 
     // Process the data
@@ -263,22 +266,22 @@ sdk.subscribeToRealtime(new NewsSignalListener() {
         System.out.println("Connection state: " + (connected ? "Connected" : "Disconnected"));
     }
 },
-    Arrays.asList("NVDA", "AAPL"),  // instrumentNames (optional) - filter by instrument names
-    null,                           // instrumentIds (optional) - filter by instrument IDs
-    50,                             // minScore (optional) - minimum signal score
-    0.5f,                           // minImportance (optional) - minimum importance score
-    0.5f                            // minSentiment (optional) - minimum sentiment score
+    Arrays.asList("NVDA", "AAPL"),      // instrumentNames (optional) - filter by instrument names
+    null,                               // instrumentIds (optional) - filter by instrument IDs
+    50,                                 // minScore (optional) - minimum signal score
+    0.5f,                               // minStrength (optional) - minimum strength score
+    Arrays.asList("BUSINESS_UPDATE")    // reasonCodes (optional)
 );
 
 // Alternative: Subscribe using instrument IDs
 sdk.subscribeToRealtime(new NewsSignalListener() {
     // listener implementation
 },
-    null,                           // instrumentNames (optional)
-    Arrays.asList(1, 2, 3),         // instrumentIds (optional)
-    50,                             // minScore (optional)
-    0.5f,                           // minImportance (optional)
-    0.5f                            // minSentiment (optional)
+    null,                               // instrumentNames (optional)
+    Arrays.asList(1, 2, 3),             // instrumentIds (optional)
+    50,                                 // minScore (optional)
+    0.5f,                               // minStrength (optional)
+    Arrays.asList("BUSINESS_UPDATE")    // reasonCodes (optional)
 );
 
 // Later, when you want to unsubscribe:
