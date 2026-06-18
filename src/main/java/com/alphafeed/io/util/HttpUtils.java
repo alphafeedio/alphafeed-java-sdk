@@ -63,6 +63,23 @@ public class HttpUtils {
             urlBuilder.addQueryParameter("reason_codes", String.join(",", reasonCodes));
         }
     }
+
+    public static void addEventFilterParameters(HttpUrl.Builder urlBuilder,
+                                                List<String> eventSignalTypes,
+                                                List<String> impact,
+                                                List<String> currencyCodes) {
+        if (eventSignalTypes != null && !eventSignalTypes.isEmpty()) {
+            urlBuilder.addQueryParameter("event_signal_type", String.join(",", eventSignalTypes));
+        }
+
+        if (impact != null && !impact.isEmpty()) {
+            urlBuilder.addQueryParameter("impact", String.join(",", impact));
+        }
+
+        if (currencyCodes != null && !currencyCodes.isEmpty()) {
+            urlBuilder.addQueryParameter("currency_code", String.join(",", currencyCodes));
+        }
+    }
     
     public static void addPaginationParameters(HttpUrl.Builder urlBuilder, Integer limit, Integer offset) {
         if (limit != null) {

@@ -4,7 +4,7 @@ A Java SDK for interacting with the AlphaFeed.io API. This library provides easy
 
 ## Features
 
-- Historical data access with flexible filtering options
+- Historical data access for news-based and event-based signals with flexible filtering options
 - Real-time data subscription via WebSocket
 - Instruments discovery and search functionality
 - Automatic parsing of JSON responses into Java objects
@@ -53,7 +53,7 @@ Add to your `pom.xml`:
     <dependency>
         <groupId>com.alphafeed.io</groupId>
         <artifactId>alphafeed-java-sdk</artifactId>
-        <version>1.0.6.4</version> <!-- Use appropriate version -->
+        <version>1.0.7.0</version> <!-- Use appropriate version -->
     </dependency>
 </dependencies>
 ```
@@ -74,7 +74,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.alphafeed.io:alphafeed-java-sdk:1.0.6.4'
+    implementation 'com.alphafeed.io:alphafeed-java-sdk:1.0.7.0'
 }
 ```
 
@@ -131,7 +131,7 @@ import com.alphafeed.io.AlphaFeedSDK;
 AlphaFeedSDK sdk = new AlphaFeedSDK("your-api-key");
 ```
 
-### Getting Historical Data
+### Getting News Historical Data
 
 ```java
 import com.alphafeed.io.AlphaFeedSDK;
@@ -146,8 +146,8 @@ import java.util.Date;
 AlphaFeedSDK sdk = new AlphaFeedSDK("your-api-key");
 
 try {
-    // Query historical data with instrument names
-    SignalsHistoricalDataResponse response = sdk.getHistoricalData(
+    // Query historical news signals with instrument names
+    SignalsHistoricalDataResponse<NewsSignal> response = sdk.getNewsHistoricalData(
             Date.from(Instant.parse("2025-07-01T00:00:00Z")),  // dateFrom (required)
             Date.from(Instant.parse("2025-07-28T00:00:00Z")),  // dateTo (required)
             Arrays.asList("NVDA", "AAPL", "MSFT"),  // instrumentNames (optional)
@@ -160,7 +160,7 @@ try {
     );
 
     // Alternative: Query by instrument IDs
-    SignalsHistoricalDataResponse response2 = sdk.getHistoricalData(
+    SignalsHistoricalDataResponse<NewsSignal> response2 = sdk.getNewsHistoricalData(
             Date.from(Instant.parse("2025-07-01T00:00:00Z")),  // dateFrom (required)
             Date.from(Instant.parse("2025-07-28T00:00:00Z")),  // dateTo (required)
             null,                                   // instrumentNames (optional)
@@ -181,6 +181,53 @@ try {
         System.out.println("Score: " + signal.getSignalScore());
         System.out.println("Instrument: " + signal.getInstrumentName());
         System.out.println("Instrument ID: " + signal.getInstrumentId());
+        System.out.println("-----------------------");
+    }
+} catch (IOException e) {
+    System.err.println("Error: " + e.getMessage());
+}
+```
+
+### Getting Events Historical Data
+
+```java
+import com.alphafeed.io.AlphaFeedSDK;
+import com.alphafeed.io.model.SignalsHistoricalDataResponse;
+import com.alphafeed.io.model.EventSignal;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Date;
+
+// Initialize the SDK
+AlphaFeedSDK sdk = new AlphaFeedSDK("your-api-key");
+
+try {
+    // Query historical event signals (event signal type is required)
+    SignalsHistoricalDataResponse<EventSignal> response = sdk.getEventsHistoricalData(
+            Date.from(Instant.parse("2025-07-01T00:00:00Z")),  // dateFrom (required)
+            Date.from(Instant.parse("2025-07-28T00:00:00Z")),  // dateTo (required)
+            Arrays.asList("NVDA", "AAPL", "MSFT"),                       // instrumentNames (optional)
+            null,                                                        // instrumentIds (optional)
+            20,                                                          // limit (optional)
+            0,                                                           // offset (optional)
+            50,                                                          // minScore (optional)
+            0.5f,                                                        // minStrength (optional)
+            Arrays.asList("BUSINESS_UPDATE"),                            // reasonCodes (optional)
+            Arrays.asList("EVENT_PRE_RELEASE_FORECAST"),                 // eventSignalTypes (required)
+            Arrays.asList("High", "Medium"),                             // impact (optional)
+            Arrays.asList("USD")                                         // currencyCodes (optional)
+    );
+
+    System.out.println("Total records: " + response.getPagination().getTotal());
+
+    for (EventSignal signal : response.getData()) {
+        System.out.println("Event: " + signal.getEventName());
+        System.out.println("Date: " + signal.getEventDatetime());
+        System.out.println("Impact: " + signal.getImpact());
+        System.out.println("Currency: " + signal.getCurrencyCode());
+        System.out.println("Score: " + signal.getSignalScore());
+        System.out.println("Instrument: " + signal.getInstrumentName());
         System.out.println("-----------------------");
     }
 } catch (IOException e) {

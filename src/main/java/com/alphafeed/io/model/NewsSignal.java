@@ -3,32 +3,8 @@ package com.alphafeed.io.model;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
-import java.util.List;
 
-public class NewsSignal {
-    private Integer id;
-
-    @SerializedName("signal_score")
-    private int signalScore;
-
-    @SerializedName("signal_side")
-    private String signalSide;
-
-    @SerializedName("signal_strength_score")
-    private Float signalStrengthScore;
-
-    @SerializedName("signal_datetime")
-    private Date signalDatetime;
-
-    @SerializedName("instrument_name")
-    private String instrumentName;
-
-    @SerializedName("instrument_tickers")
-    private List<String> instrumentTickers;
-
-    @SerializedName("instrument_id")
-    private Integer instrumentId;
-
+public class NewsSignal extends Signal {
     @SerializedName("news_title")
     private String newsTitle;
 
@@ -40,44 +16,6 @@ public class NewsSignal {
 
     @SerializedName("news_url")
     private String newsUrl;
-
-    @SerializedName("comment")
-    private String comment;
-
-    @SerializedName("reason_code")
-    private String reasonCode;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public int getSignalScore() {
-        return signalScore;
-    }
-
-    public String getSignalSide() {
-        return signalSide;
-    }
-
-    public Float getSignalStrengthScore() {
-        return signalStrengthScore;
-    }
-
-    public Date getSignalDatetime() {
-        return signalDatetime;
-    }
-
-    public String getInstrumentName() {
-        return instrumentName;
-    }
-
-    public List<String> getInstrumentTickers() {
-        return instrumentTickers;
-    }
-
-    public Integer getInstrumentId() {
-        return instrumentId;
-    }
 
     public String getNewsTitle() {
         return newsTitle;
@@ -95,31 +33,13 @@ public class NewsSignal {
         return newsUrl;
     }
 
-    public String getComment() {
-        return comment;
-    }
-
-    public String getReasonCode() {
-        return reasonCode;
-    }
-
     @Override
     public String toString() {
-        return "NewsSignal{" +
-                "id=" + id +
-                ", signalScore=" + signalScore +
-                ", signalSide='" + signalSide + '\'' +
-                ", signalStrengthScore=" + signalStrengthScore +
-                ", signalDatetime=" + signalDatetime +
-                ", instrumentName='" + instrumentName + '\'' +
-                ", instrumentTickers=" + instrumentTickers +
-                ", instrumentId=" + instrumentId +
+        return "NewsSignal{" + baseToString() +
                 ", newsTitle='" + newsTitle + '\'' +
                 ", newsDatetime=" + newsDatetime +
                 ", newsSite='" + newsSite + '\'' +
                 ", newsUrl='" + newsUrl + '\'' +
-                ", comment='" + comment + '\'' +
-                ", reasonCode='" + reasonCode + '\'' +
                 '}';
     }
 }

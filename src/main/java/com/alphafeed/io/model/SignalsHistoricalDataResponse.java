@@ -2,18 +2,18 @@ package com.alphafeed.io.model;
 
 import java.util.List;
 
-public class SignalsHistoricalDataResponse {
-    private List<NewsSignal> data;
+public class SignalsHistoricalDataResponse<T extends Signal> {
+    private List<T> data;
     private Pagination pagination;
 
-    public List<NewsSignal> getData() {
+    public List<T> getData() {
         return data;
     }
 
     public Pagination getPagination() {
         return pagination;
     }
-    
+
     @Override
     public String toString() {
         return "SignalsHistoricalDataResponse{" +

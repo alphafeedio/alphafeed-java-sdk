@@ -1,16 +1,20 @@
 package com.alphafeed.io;
 
+import com.alphafeed.io.model.EventSignal;
 import com.alphafeed.io.model.InstrumentsResponse;
+import com.alphafeed.io.model.NewsSignal;
 import com.alphafeed.io.model.SignalsHistoricalDataResponse;
 import com.alphafeed.io.util.GsonFactory;
 import com.alphafeed.io.util.HttpUtils;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
 
@@ -32,13 +36,44 @@ public class AlphaFeedSDK {
         this.gson = GsonFactory.getGson();
     }
 
-    public SignalsHistoricalDataResponse getHistoricalData(Date dateFrom, Date dateTo, List<String> instrumentNames,
-                                                           List<Integer> instrumentIds, Integer limit, Integer offset, Integer minScore,
-                                                           Float minStrength, List<String> reasonCodes) throws IOException {
+    public SignalsHistoricalDataResponse<NewsSignal> getNewsHistoricalData(Date dateFrom, Date dateTo, List<String> instrumentNames,
+                                                                            List<Integer> instrumentIds, Integer limit, Integer offset, Integer minScore,
+                                                                            Float minStrength, List<String> reasonCodes) throws IOException {
+        HttpUrl.Builder urlBuilder = buildHistoricalDataUrl("/news-historical-data", dateFrom, dateTo, instrumentNames,
+                instrumentIds, limit, offset, minScore, minStrength, reasonCodes);
+
+        Request request = HttpUtils.createAuthenticatedRequestBuilder(urlBuilder.build().toString(), apiKey)
+                .get()
+                .build();
+
+        Type responseType = TypeToken.getParameterized(SignalsHistoricalDataResponse.class, NewsSignal.class).getType();
+        return executeRequest(request, responseType);
+    }
+
+    public SignalsHistoricalDataResponse<EventSignal> getEventsHistoricalData(Date dateFrom, Date dateTo, List<String> instrumentNames,
+                                                                               List<Integer> instrumentIds, Integer limit, Integer offset, Integer minScore,
+                                                                               Float minStrength, List<String> reasonCodes,
+                                                                               List<String> eventSignalTypes, List<String> impact,
+                                                                               List<String> currencyCodes) throws IOException {
+        HttpUrl.Builder urlBuilder = buildHistoricalDataUrl("/events-historical-data", dateFrom, dateTo, instrumentNames,
+                instrumentIds, limit, offset, minScore, minStrength, reasonCodes);
+        HttpUtils.addEventFilterParameters(urlBuilder, eventSignalTypes, impact, currencyCodes);
+
+        Request request = HttpUtils.createAuthenticatedRequestBuilder(urlBuilder.build().toString(), apiKey)
+                .get()
+                .build();
+
+        Type responseType = TypeToken.getParameterized(SignalsHistoricalDataResponse.class, EventSignal.class).getType();
+        return executeRequest(request, responseType);
+    }
+
+    private HttpUrl.Builder buildHistoricalDataUrl(String path, Date dateFrom, Date dateTo, List<String> instrumentNames,
+                                                   List<Integer> instrumentIds, Integer limit, Integer offset, Integer minScore,
+                                                   Float minStrength, List<String> reasonCodes) {
         String dateFromIso = dateFrom.toInstant().toString();
         String dateToIso = dateTo.toInstant().toString();
 
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + "/historical-data").newBuilder()
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + path).newBuilder()
                 .addQueryParameter("date_from", dateFromIso)
                 .addQueryParameter("date_to", dateToIso);
 
@@ -46,11 +81,7 @@ public class AlphaFeedSDK {
         HttpUtils.addPaginationParameters(urlBuilder, limit, offset);
         HttpUtils.addFilterParameters(urlBuilder, minScore, minStrength, reasonCodes);
 
-        Request request = HttpUtils.createAuthenticatedRequestBuilder(urlBuilder.build().toString(), apiKey)
-                .get()
-                .build();
-
-        return executeRequest(request, SignalsHistoricalDataResponse.class);
+        return urlBuilder;
     }
 
     public InstrumentsResponse getInstruments() throws IOException {
@@ -107,6 +138,10 @@ public class AlphaFeedSDK {
     }
 
     private <T> T executeRequest(Request request, Class<T> responseType) throws IOException {
+        return executeRequest(request, (Type) responseType);
+    }
+
+    private <T> T executeRequest(Request request, Type responseType) throws IOException {
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Unexpected response code: " + response.code());
