@@ -6,6 +6,7 @@ import okhttp3.Request;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class HttpUtils {
     
@@ -69,7 +70,8 @@ public class HttpUtils {
                                                 List<String> impact,
                                                 List<String> currencyCodes) {
         if (eventSignalTypes != null && !eventSignalTypes.isEmpty()) {
-            urlBuilder.addQueryParameter("event_signal_type", String.join(",", eventSignalTypes));
+            urlBuilder.addQueryParameter("event_signal_type",
+                    eventSignalTypes.stream().map(String::toUpperCase).collect(Collectors.joining(",")));
         }
 
         if (impact != null && !impact.isEmpty()) {
